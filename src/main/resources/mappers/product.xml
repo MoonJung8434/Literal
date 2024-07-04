@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- product.xml -->
+
+<mapper namespace="kr.co.literal.product.ProductMapper">
+
+    <insert id="insert" parameterType="java.util.Map">
+        INSERT INTO product (genre_code, book_code, book_number, book_title, author, book_detail, img, img_size, grade_code, original_price, sale_price, registration_date, email, availability, branch_code)
+        VALUES (#{genre_code}, #{book_code}, #{book_number}, #{book_title}, #{author}, #{book_detail}, #{img}, #{img_size}, #{grade_code}, #{original_price}, #{sale_price}, now(), #{email}, '2', #{branch_code})
+    </insert>
+
+ 	<select id="list" resultType="java.util.Map">
+		SELECT  book_number, book_title, original_price, sale_price, img, img_size, registration_date
+        FROM product
+        ORDER BY registration_date DESC
+	</select>
+ 	
+ 	<select id="generateBookCode" resultType="int">
+        SELECT COALESCE(MAX(CAST(SUBSTRING_INDEX(book_code, '-', -1) AS UNSIGNED)), 0) + 1
+        FROM product
+        WHERE genre_code = #{genreCode}
+    </select>
+
+	<select id="getNextBookNumber" resultType="int">
+	    SELECT COALESCE(MAX(CAST(RIGHT(book_number, 3) AS UNSIGNED)), 0) + 1
+	    FROM product
+	    WHERE genre_code = #{genreCode} AND book_code = #{bookCode}
+	</select>
+    
+    <select id="bookCodeExists" parameterType="string" resultType="int">
+        SELECT COUNT(*) FROM product WHERE book_code = #{bookCode}
+    </select>
+
+    <select id="bookNumberExists" parameterType="string" resultType="int">
+        SELECT COUNT(*) FROM product WHERE book_number = #{bookNumber}
+    </select>
+    
+    <select id="detail" resultType="java.util.Map" parameterType="String">
+        SELECT book_number, book_title, author, book_detail, original_price, sale_price, img, img_size
+        FROM product
+        WHERE book_number = #{book_number}
+    </select>
+    
+    <select id="search" resultType="java.util.Map" parameterType="String">
+		SELECT book_number, book_title, original_price, sale_price, img, img_size
+        FROM product
+        WHERE book_title LIKE #{keyword}
+        ORDER BY book_title
+	</select>
+	
+	<update id="update" parameterType="java.util.Map">
+        UPDATE product
+        SET book_title=#{book_title}
+        	,author=#{author}
+        	,grade_code=#{grade_code}
+        	,genre_code=#{genre_code}
+        	,original_price=#{original_price}
+            ,sale_price=#{sale_price}
+            ,book_detail=#{book_detail}
+            ,img=#{img}
+            ,img_size=#{img_size}           
+        WHERE book_number=#{book_number}
+    </update>
+
+	<select id="img" resultType="String" parameterType="String">
+        SELECT img
+        FROM product
+        WHERE book_number=#{book_number}
+    </select>
+
+
+	<delete id="delete" parameterType="String">
+        DELETE FROM product
+        WHERE book_number=#{book_number}
+    </delete>
+    
+    
+     <select id="list_G" resultType="java.util.Map">
+		SELECT genre_code, book_number, book_title, original_price, sale_price, img, img_size, registration_date
+        FROM product
+        WHERE genre_code = 'G'
+        ORDER BY registration_date DESC
+	</select>
+    
+ </mapper>
